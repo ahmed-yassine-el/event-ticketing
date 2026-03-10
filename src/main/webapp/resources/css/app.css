@@ -1,0 +1,18 @@
+:root {
+    --app-primary: #0d6efd;
+    --app-dark: #1f2937;
+}
+
+body {
+    min-height: 100vh;
+}
+
+.card {
+    border: 0;
+    border-radius: 0.75rem;
+}
+
+.table td,
+.table th {
+    vertical-align: middle;
+}
