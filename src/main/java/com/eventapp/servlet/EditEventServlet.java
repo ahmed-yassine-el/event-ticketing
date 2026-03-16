@@ -60,17 +60,30 @@ public class EditEventServlet extends BaseServlet {
             eventDTO.setDescription(request.getParameter("description"));
             eventDTO.setCategory(request.getParameter("category"));
             eventDTO.setLocation(request.getParameter("location"));
+            eventDTO.setLatitude(parseCoordinate(request.getParameter("latitude")));
+            eventDTO.setLongitude(parseCoordinate(request.getParameter("longitude")));
             eventDTO.setEventDate(parseDateTime(request.getParameter("eventDate")));
             eventDTO.setTotalTickets(Integer.valueOf(request.getParameter("totalTickets")));
             eventDTO.setPrice(new BigDecimal(request.getParameter("price")));
 
-            eventService.updateEvent(id, eventDTO);
+            eventService.updateEvent(id, eventDTO, eventDTO.getLatitude(), eventDTO.getLongitude());
             FlashUtil.setSuccess(request.getSession(), "Event updated successfully.");
             response.sendRedirect(request.getContextPath() + "/organizer/dashboard");
         } catch (Exception ex) {
             request.setAttribute("error", ex.getMessage());
             request.setAttribute("event", event);
             forward(request, response, "organizer/edit-event.jsp");
+        }
+    }
+
+    private Double parseCoordinate(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        try {
+            return Double.parseDouble(value.trim());
+        } catch (NumberFormatException ex) {
+            throw new IllegalArgumentException("Invalid location coordinates.");
         }
     }
 }

@@ -44,7 +44,7 @@ public class OrganizerStatsServlet extends BaseServlet {
             soldByEvent.put(event.getTitle(), ticketService.countSoldTicketsByEvent(event.getId()));
         }
 
-        List<PopularEventStat> popularEvents = statisticsService.getMostPopularEvents(5);
+        List<PopularEventStat> popularEvents = statisticsService.getMostPopularEvents(10, organizer.getId());
 
         request.setAttribute("soldByEvent", soldByEvent);
         request.setAttribute("popularEvents", popularEvents);

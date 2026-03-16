@@ -28,9 +28,11 @@ public class EventService {
      *
      * @param eventDTO event payload
      * @param organizerId organizer user id
+     * @param latitude optional event latitude
+     * @param longitude optional event longitude
      * @return created event
      */
-    public Event createEvent(EventDTO eventDTO, Long organizerId) {
+    public Event createEvent(EventDTO eventDTO, Long organizerId, Double latitude, Double longitude) {
         validateEventDTO(eventDTO);
 
         if (organizerId == null || organizerId <= 0) {
@@ -41,7 +43,7 @@ public class EventService {
                 .orElseThrow(() -> new IllegalArgumentException("Organizer not found."));
 
         Event event = new Event();
-        applyDto(event, eventDTO);
+        applyDto(event, eventDTO, latitude, longitude);
         event.setOrganizer(organizer);
         event.setAvailableTickets(eventDTO.getTotalTickets());
         event.setStatus(EventStatus.PENDING);
@@ -54,9 +56,11 @@ public class EventService {
      *
      * @param id event id
      * @param eventDTO update payload
+     * @param latitude optional event latitude
+     * @param longitude optional event longitude
      * @return updated event
      */
-    public Event updateEvent(Long id, EventDTO eventDTO) {
+    public Event updateEvent(Long id, EventDTO eventDTO, Double latitude, Double longitude) {
         validateEventDTO(eventDTO);
 
         if (id == null || id <= 0) {
@@ -71,7 +75,7 @@ public class EventService {
             throw new IllegalArgumentException("Total tickets cannot be less than sold tickets.");
         }
 
-        applyDto(event, eventDTO);
+        applyDto(event, eventDTO, latitude, longitude);
         event.setAvailableTickets(eventDTO.getTotalTickets() - sold);
 
         return eventRepository.save(event);
@@ -211,6 +215,33 @@ public class EventService {
         return eventRepository.countAll();
     }
 
+    /**
+     * Returns admin event list with optional status filter and pagination.
+     *
+     * @param statusFilter optional status text (APPROVED, PENDING, CANCELLED)
+     * @param page zero-based page index
+     * @param size page size
+     * @return matching events
+     */
+    public List<Event> getEventsForAdmin(String statusFilter, int page, int size) {
+        if (page < 0 || size <= 0) {
+            throw new IllegalArgumentException("Invalid pagination values.");
+        }
+        EventStatus status = parseStatus(statusFilter);
+        return eventRepository.findForAdmin(status, page, size);
+    }
+
+    /**
+     * Counts events for admin view with optional status filter.
+     *
+     * @param statusFilter optional status text
+     * @return total rows
+     */
+    public long countEventsForAdmin(String statusFilter) {
+        EventStatus status = parseStatus(statusFilter);
+        return eventRepository.countForAdmin(status);
+    }
+
     private Event getExistingEvent(Long id) {
         if (id == null || id <= 0) {
             throw new IllegalArgumentException("Event id is required.");
@@ -235,6 +266,15 @@ public class EventService {
         if (!ValidationUtil.between(eventDTO.getLocation(), 2, 200)) {
             throw new IllegalArgumentException("Location must be between 2 and 200 characters.");
         }
+        if ((eventDTO.getLatitude() == null) != (eventDTO.getLongitude() == null)) {
+            throw new IllegalArgumentException("Latitude and longitude must both be provided.");
+        }
+        if (eventDTO.getLatitude() != null && (eventDTO.getLatitude() < -90 || eventDTO.getLatitude() > 90)) {
+            throw new IllegalArgumentException("Latitude must be between -90 and 90.");
+        }
+        if (eventDTO.getLongitude() != null && (eventDTO.getLongitude() < -180 || eventDTO.getLongitude() > 180)) {
+            throw new IllegalArgumentException("Longitude must be between -180 and 180.");
+        }
         if (eventDTO.getEventDate() == null || eventDTO.getEventDate().isBefore(LocalDateTime.now())) {
             throw new IllegalArgumentException("Event date must be in the future.");
         }
@@ -246,13 +286,26 @@ public class EventService {
         }
     }
 
-    private void applyDto(Event event, EventDTO eventDTO) {
+    private void applyDto(Event event, EventDTO eventDTO, Double latitude, Double longitude) {
         event.setTitle(eventDTO.getTitle().trim());
         event.setDescription(eventDTO.getDescription().trim());
         event.setCategory(eventDTO.getCategory().trim());
         event.setLocation(eventDTO.getLocation().trim());
+        event.setLatitude(latitude);
+        event.setLongitude(longitude);
         event.setEventDate(eventDTO.getEventDate());
         event.setTotalTickets(eventDTO.getTotalTickets());
         event.setPrice(eventDTO.getPrice());
+    }
+
+    private EventStatus parseStatus(String statusFilter) {
+        if (statusFilter == null || statusFilter.isBlank()) {
+            return null;
+        }
+        try {
+            return EventStatus.valueOf(statusFilter.trim().toUpperCase());
+        } catch (IllegalArgumentException ex) {
+            return null;
+        }
     }
 }

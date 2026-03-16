@@ -4,6 +4,7 @@ com\eventapp\model\PopularEventStat.class
 com\eventapp\servlet\AdminDashboard.class
 com\eventapp\repository\TicketRepository.class
 com\eventapp\servlet\ManageUsersServlet.class
+com\eventapp\servlet\AdminDeleteEventServlet.class
 com\eventapp\servlet\OrganizerStatsServlet.class
 com\eventapp\servlet\CreateEventServlet.class
 com\eventapp\util\FlashUtil.class

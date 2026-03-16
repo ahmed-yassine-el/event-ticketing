@@ -24,7 +24,29 @@ public class AdminEventsServlet extends BaseServlet {
         if (admin == null) {
             return;
         }
-        request.setAttribute("pendingEvents", eventService.getPendingEvents());
+
+        final int pageSize = 10;
+        int currentPage = 1;
+        Long pageParam = parseLong(request.getParameter("page"));
+        if (pageParam != null && pageParam > 0 && pageParam <= Integer.MAX_VALUE) {
+            currentPage = pageParam.intValue();
+        }
+
+        String statusFilter = request.getParameter("status");
+        long totalEvents = eventService.countEventsForAdmin(statusFilter);
+        int totalPages = (int) Math.ceil((double) totalEvents / pageSize);
+        if (totalPages <= 0) {
+            totalPages = 1;
+        }
+        if (currentPage > totalPages) {
+            currentPage = totalPages;
+        }
+
+        request.setAttribute("events", eventService.getEventsForAdmin(statusFilter, currentPage - 1, pageSize));
+        request.setAttribute("statusFilter", statusFilter);
+        request.setAttribute("currentPage", currentPage);
+        request.setAttribute("totalPages", totalPages);
+        request.setAttribute("totalEvents", totalEvents);
         forward(request, response, "admin/events.jsp");
     }
 }

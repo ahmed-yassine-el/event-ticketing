@@ -42,6 +42,12 @@ public class Event implements Serializable {
     @Column(nullable = false, length = 200)
     private String location;
 
+    @Column(precision = 10, scale = 7)
+    private Double latitude;
+
+    @Column(precision = 10, scale = 7)
+    private Double longitude;
+
     @Column(name = "event_date", nullable = false)
     private LocalDateTime eventDate;
 
@@ -116,6 +122,22 @@ public class Event implements Serializable {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
     }
 
     public LocalDateTime getEventDate() {
@@ -201,6 +223,8 @@ public class Event implements Serializable {
                 ", title='" + title + '\'' +
                 ", category='" + category + '\'' +
                 ", location='" + location + '\'' +
+                ", latitude=" + latitude +
+                ", longitude=" + longitude +
                 ", eventDate=" + eventDate +
                 ", status=" + status +
                 '}';

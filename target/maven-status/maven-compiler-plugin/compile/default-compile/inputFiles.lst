@@ -41,6 +41,7 @@ C:\event-ticketing\src\main\java\com\eventapp\repository\PaymentRepository.java
 C:\event-ticketing\src\main\java\com\eventapp\repository\UserRepository.java
 C:\event-ticketing\src\main\java\com\eventapp\security\CsrfFilter.java
 C:\event-ticketing\src\main\java\com\eventapp\servlet\CancelTicketServlet.java
+C:\event-ticketing\src\main\java\com\eventapp\servlet\AdminDeleteEventServlet.java
 C:\event-ticketing\src\main\java\com\eventapp\util\MailUtil.java
 C:\event-ticketing\src\main\java\com\eventapp\servlet\EventDetailServlet.java
 C:\event-ticketing\src\main\java\com\eventapp\servlet\MyTicketsServlet.java

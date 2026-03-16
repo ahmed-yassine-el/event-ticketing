@@ -39,7 +39,7 @@ public class CreateEventServlet extends BaseServlet {
 
         try {
             EventDTO eventDTO = buildEventDto(request);
-            eventService.createEvent(eventDTO, organizer.getId());
+            eventService.createEvent(eventDTO, organizer.getId(), eventDTO.getLatitude(), eventDTO.getLongitude());
             FlashUtil.setSuccess(request.getSession(), "Event submitted for admin approval.");
             response.sendRedirect(request.getContextPath() + "/organizer/dashboard");
         } catch (Exception ex) {
@@ -54,9 +54,22 @@ public class CreateEventServlet extends BaseServlet {
         dto.setDescription(request.getParameter("description"));
         dto.setCategory(request.getParameter("category"));
         dto.setLocation(request.getParameter("location"));
+        dto.setLatitude(parseCoordinate(request.getParameter("latitude")));
+        dto.setLongitude(parseCoordinate(request.getParameter("longitude")));
         dto.setEventDate(parseDateTime(request.getParameter("eventDate")));
         dto.setTotalTickets(Integer.valueOf(request.getParameter("totalTickets")));
         dto.setPrice(new BigDecimal(request.getParameter("price")));
         return dto;
+    }
+
+    private Double parseCoordinate(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        try {
+            return Double.parseDouble(value.trim());
+        } catch (NumberFormatException ex) {
+            throw new IllegalArgumentException("Invalid location coordinates.");
+        }
     }
 }

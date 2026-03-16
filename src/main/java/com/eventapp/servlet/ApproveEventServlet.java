@@ -27,6 +27,8 @@ public class ApproveEventServlet extends BaseServlet {
 
         Long id = parseLong(request.getParameter("id"));
         String action = request.getParameter("action");
+        String status = request.getParameter("status");
+        String page = request.getParameter("page");
         try {
             if ("reject".equalsIgnoreCase(action)) {
                 eventService.rejectEvent(id);
@@ -38,6 +40,16 @@ public class ApproveEventServlet extends BaseServlet {
         } catch (Exception ex) {
             FlashUtil.setError(request.getSession(), ex.getMessage());
         }
-        response.sendRedirect(request.getContextPath() + "/admin/dashboard");
+
+        StringBuilder redirect = new StringBuilder(request.getContextPath()).append("/admin/events");
+        boolean hasQuery = false;
+        if (status != null && !status.isBlank()) {
+            redirect.append("?status=").append(status.trim());
+            hasQuery = true;
+        }
+        if (page != null && !page.isBlank()) {
+            redirect.append(hasQuery ? "&" : "?").append("page=").append(page.trim());
+        }
+        response.sendRedirect(redirect.toString());
     }
 }

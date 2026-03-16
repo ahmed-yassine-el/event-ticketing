@@ -1,4 +1,4 @@
-﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 <%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
@@ -6,283 +6,293 @@
 <jsp:include page="/WEB-INF/views/layout/header.jsp"/>
 
 <style>
-    .admin-stats {
-        --p1: #7C3AED;
-        --p2: #2563EB;
-        --p3: #EC4899;
-    }
-
-    .admin-stats .metric-card,
     .admin-stats .glass-card {
-        border-radius: 1.2rem;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        background: linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
-        backdrop-filter: blur(20px);
-        box-shadow: 0 26px 44px rgba(7, 8, 20, 0.4);
-        height: 100%;
+        padding: 0.2rem;
     }
 
-    .admin-stats .metric-card {
-        padding: 0.95rem;
+    .chart-wrap {
+        border: 1px solid #E2E8F0;
+        border-radius: 14px;
+        padding: 0.65rem;
+        background: #FFFFFF;
     }
 
-    .admin-stats .metric-label {
+    .popular-list {
+        list-style: none;
+        padding: 0;
         margin: 0;
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: rgba(215, 220, 248, 0.74);
+        display: grid;
+        gap: 0.75rem;
     }
 
-    .admin-stats .metric-value {
-        margin: 0.42rem 0 0;
-        font-family: "Syne", sans-serif;
-        font-size: clamp(1.35rem, 3vw, 1.95rem);
-        line-height: 1.1;
-        color: #F8F9FF;
-    }
-
-    .admin-stats .metric-card.primary {
-        background: linear-gradient(135deg, rgba(124, 58, 237, 0.3), rgba(37, 99, 235, 0.2));
-    }
-
-    .admin-stats .metric-card.info {
-        background: linear-gradient(135deg, rgba(37, 99, 235, 0.3), rgba(14, 165, 233, 0.2));
-    }
-
-    .admin-stats .metric-card.warning {
-        background: linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(251, 191, 36, 0.2));
-    }
-
-    .admin-stats .metric-card.success {
-        background: linear-gradient(135deg, rgba(34, 197, 94, 0.28), rgba(37, 99, 235, 0.2));
-    }
-
-    .admin-stats .glass-card .card-body {
-        padding: 1.1rem;
-    }
-
-    .admin-stats .section-title {
-        margin: 0 0 0.85rem;
-        font-family: "Syne", sans-serif;
-        font-size: clamp(1.2rem, 3vw, 1.52rem);
-        line-height: 1.1;
-        color: #F7F8FF;
-    }
-
-    .admin-stats .chart-wrap {
-        border-radius: 1rem;
-        border: 1px solid rgba(255, 255, 255, 0.14);
-        background: rgba(8, 10, 24, 0.58);
+    .popular-item {
+        border: 1px solid #E2E8F0;
+        border-radius: 14px;
         padding: 0.75rem;
+        background: #FFFFFF;
     }
 
-    .admin-stats .table-wrap {
-        border-radius: 1rem;
-        border: 1px solid rgba(255, 255, 255, 0.16);
-        overflow: hidden;
-        background: rgba(8, 10, 24, 0.58);
+    .popular-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        margin-bottom: 0.45rem;
     }
 
-    .admin-stats .popular-table {
-        margin: 0;
-        --bs-table-bg: transparent;
-        --bs-table-striped-bg: rgba(255, 255, 255, 0.04);
-        --bs-table-striped-color: #EEF1FF;
-        color: #EEF1FF;
-    }
-
-    .admin-stats .popular-table thead th {
-        background: rgba(255, 255, 255, 0.05);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.16);
-        color: rgba(215, 220, 248, 0.78);
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        white-space: nowrap;
-    }
-
-    .admin-stats .popular-table td,
-    .admin-stats .popular-table th {
-        border-color: rgba(255, 255, 255, 0.08);
-        padding: 0.78rem 0.68rem;
-        vertical-align: middle;
-    }
-
-    .admin-stats .sold-pill {
+    .rank-chip {
         display: inline-flex;
         align-items: center;
+        justify-content: center;
         border-radius: 999px;
-        border: 1px solid rgba(124, 58, 237, 0.66);
-        background: rgba(124, 58, 237, 0.25);
-        color: #F1E8FF;
-        font-size: 0.72rem;
+        padding: 0.2rem 0.62rem;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
         font-weight: 700;
-        letter-spacing: 0.04em;
-        padding: 0.24rem 0.6rem;
+        border: 1px solid #E2E8F0;
+        color: #475569;
+        background: #FFFFFF;
     }
 
-    @media (max-width: 991.98px) {
-        .admin-stats .table-wrap {
-            overflow-x: auto;
-        }
+    .rank-chip.gold { background: #FFF7D6; border-color: #FDE68A; color: #92400E; }
+    .rank-chip.silver { background: #F1F5F9; border-color: #CBD5E1; color: #334155; }
+    .rank-chip.bronze { background: #FFEDD5; border-color: #FDBA74; color: #9A3412; }
 
-        .admin-stats .popular-table {
-            min-width: 520px;
-        }
+    .event-title {
+        margin: 0;
+        font-size: 1.15rem;
+        color: #2D3748;
+    }
+
+    .metrics-row {
+        margin-top: 0.35rem;
+        display: flex;
+        justify-content: space-between;
+        gap: 0.4rem;
+        flex-wrap: wrap;
+        color: #4A5568;
+        font-size: 0.88rem;
+    }
+
+    .progress {
+        margin-top: 0.5rem;
+        height: 8px;
+        background: #F1F5F9;
+        border-radius: 999px;
+        overflow: hidden;
+    }
+
+    .progress-bar {
+        background: linear-gradient(90deg, #FF6B35, #38B2AC);
+    }
+
+    .kpi-role {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .empty-state {
+        border: 1px dashed #CBD5E1;
+        border-radius: 12px;
+        padding: 0.9rem;
+        color: #64748B;
     }
 </style>
 
-<section class="admin-stats">
-    <div class="row g-4 mb-4">
-        <div class="col-md-3"><div class="metric-card kpi-card primary"><p class="metric-label">Total Users</p><h3 class="metric-value"><c:out value="${summary.totalUsers}"/></h3></div></div>
-        <div class="col-md-3"><div class="metric-card kpi-card info"><p class="metric-label">Total Events</p><h3 class="metric-value"><c:out value="${summary.totalEvents}"/></h3></div></div>
-        <div class="col-md-3"><div class="metric-card kpi-card warning"><p class="metric-label">Total Tickets</p><h3 class="metric-value"><c:out value="${summary.totalTickets}"/></h3></div></div>
-        <div class="col-md-3"><div class="metric-card kpi-card success"><p class="metric-label">Total Revenue</p><h3 class="metric-value"><fmt:formatNumber value="${summary.totalRevenue}" type="currency"/></h3></div></div>
-    </div>
+<section class="admin-stats dashboard-layout">
+    <aside class="dashboard-sidebar">
+        <h2>Admin</h2>
+        <a class="sidebar-link" href="${pageContext.request.contextPath}/admin/dashboard">Dashboard</a>
+        <a class="sidebar-link" href="${pageContext.request.contextPath}/admin/events">Events</a>
+        <a class="sidebar-link" href="${pageContext.request.contextPath}/admin/users">Users</a>
+        <a class="sidebar-link active" href="${pageContext.request.contextPath}/admin/stats">Statistics</a>
+    </aside>
 
-    <div class="row g-4">
-        <div class="col-lg-6">
-            <div class="glass-card card">
-                <div class="card-body">
-                    <h2 class="section-title">Most Popular Events</h2>
-                    <div class="chart-wrap">
-                        <canvas id="popularEventsChart" height="200"></canvas>
+    <div class="dashboard-content">
+        <div class="row g-4 mb-4">
+            <div class="col-md-3"><div class="metric-card kpi-card primary"><p class="metric-label">Total Users</p><h3 class="metric-value"><c:out value="${summary.totalUsers}"/></h3></div></div>
+            <div class="col-md-3"><div class="metric-card kpi-card info"><p class="metric-label">Total Events</p><h3 class="metric-value"><c:out value="${summary.totalEvents}"/></h3></div></div>
+            <div class="col-md-3"><div class="metric-card kpi-card warning"><p class="metric-label">Total Tickets</p><h3 class="metric-value"><c:out value="${summary.totalTickets}"/></h3></div></div>
+            <div class="col-md-3"><div class="metric-card kpi-card success"><p class="metric-label">Total Revenue</p><h3 class="metric-value"><fmt:formatNumber value="${summary.totalRevenue}" type="currency"/></h3></div></div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="glass-card card h-100">
+                    <div class="card-body">
+                        <h2 class="section-title">Most Popular Events</h2>
+                        <c:choose>
+                            <c:when test="${not empty popularEvents}">
+                                <ul class="popular-list">
+                                    <c:forEach items="${popularEvents}" var="event" varStatus="status">
+                                        <c:set var="soldPercent" value="${event.totalTickets > 0 ? (event.soldTickets * 100.0 / event.totalTickets) : 0}"/>
+                                        <li class="popular-item">
+                                            <div class="popular-top">
+                                                <c:choose>
+                                                    <c:when test="${status.count == 1}"><span class="rank-chip gold">Top 1</span></c:when>
+                                                    <c:when test="${status.count == 2}"><span class="rank-chip silver">Top 2</span></c:when>
+                                                    <c:when test="${status.count == 3}"><span class="rank-chip bronze">Top 3</span></c:when>
+                                                    <c:otherwise><span class="rank-chip">#<c:out value="${status.count}"/></span></c:otherwise>
+                                                </c:choose>
+                                                <span class="category-pill" data-category="${fn:escapeXml(event.category)}">
+                                                    <c:out value="${event.category}"/>
+                                                </span>
+                                            </div>
+                                            <p class="event-title"><c:out value="${event.title}"/></p>
+                                            <div class="metrics-row">
+                                                <span>Sold: <strong><c:out value="${event.soldTickets}"/></strong> / <c:out value="${event.totalTickets}"/></span>
+                                                <span class="revenue"><fmt:formatNumber value="${event.revenue}" type="currency"/></span>
+                                            </div>
+                                            <div class="progress">
+                                                <div class="progress-bar" role="progressbar" style="width: ${soldPercent > 100 ? 100 : soldPercent}%;"></div>
+                                            </div>
+                                        </li>
+                                    </c:forEach>
+                                </ul>
+                            </c:when>
+                            <c:otherwise>
+                                <div class="empty-state">No sales data available yet.</div>
+                            </c:otherwise>
+                        </c:choose>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="col-lg-6">
-            <div class="glass-card card">
-                <div class="card-body">
-                    <h2 class="section-title">User Registrations</h2>
-                    <div class="chart-wrap">
-                        <canvas id="registrationsChart" height="200"></canvas>
+
+            <div class="col-lg-6">
+                <div class="glass-card card h-100">
+                    <div class="card-body">
+                        <h2 class="section-title">User Registrations</h2>
+                        <div class="chart-wrap mb-3">
+                            <canvas id="registrationsChart" height="220"></canvas>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <div class="metric-card primary">
+                                    <p class="metric-label kpi-role">Total Participants</p>
+                                    <h3 class="metric-value"><c:out value="${totalParticipants}"/></h3>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="metric-card info">
+                                    <p class="metric-label kpi-role">Total Organizers</p>
+                                    <h3 class="metric-value"><c:out value="${totalOrganizers}"/></h3>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="metric-card warning">
+                                    <p class="metric-label kpi-role">Total Admins</p>
+                                    <h3 class="metric-value"><c:out value="${totalAdmins}"/></h3>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="glass-card card mt-4">
-        <div class="card-body">
-            <h2 class="section-title">Popular Events Table</h2>
-            <div class="table-wrap table-responsive">
-                <table class="table table-striped align-middle popular-table">
-                    <thead>
-                    <tr><th>Event</th><th>Tickets Sold</th></tr>
-                    </thead>
-                    <tbody>
-                    <c:forEach items="${popularEvents}" var="event">
-                        <tr>
-                            <td><c:out value="${event.title}"/></td>
-                            <td><span class="sold-pill"><c:out value="${event.soldTickets}"/></span></td>
-                        </tr>
-                    </c:forEach>
-                    </tbody>
-                </table>
             </div>
         </div>
     </div>
 </section>
 
 <script>
-    const popularLabels = [
-        <c:forEach items="${popularEvents}" var="event" varStatus="status">"${fn:escapeXml(event.title)}"<c:if test="${!status.last}">,</c:if></c:forEach>
-    ];
-    const popularData = [
-        <c:forEach items="${popularEvents}" var="event" varStatus="status">${event.soldTickets}<c:if test="${!status.last}">,</c:if></c:forEach>
-    ];
-
-    const registrationLabels = [
-        <c:forEach items="${registrationStats}" var="stat" varStatus="status">"${fn:escapeXml(stat.date)}"<c:if test="${!status.last}">,</c:if></c:forEach>
-    ];
-    const registrationData = [
-        <c:forEach items="${registrationStats}" var="stat" varStatus="status">${stat.registrations}<c:if test="${!status.last}">,</c:if></c:forEach>
+    const registrationRows = [
+        <c:forEach items="${registrationStats}" var="stat" varStatus="status">
+        {date: "${fn:escapeXml(stat.date)}", role: "${fn:escapeXml(stat.role)}", count: ${stat.registrations}}<c:if test="${!status.last}">,</c:if>
+        </c:forEach>
     ];
 
-    const popularCanvas = document.getElementById('popularEventsChart');
-    const popularCtx = popularCanvas.getContext('2d');
-    const popularGradient = popularCtx.createLinearGradient(0, 0, 0, popularCanvas.height || 200);
-    popularGradient.addColorStop(0, 'rgba(124, 58, 237, 0.95)');
-    popularGradient.addColorStop(0.5, 'rgba(37, 99, 235, 0.9)');
-    popularGradient.addColorStop(1, 'rgba(236, 72, 153, 0.78)');
+    const dateSet = new Set();
+    const participantByDate = {};
+    const organizerByDate = {};
+    registrationRows.forEach(function (row) {
+        dateSet.add(row.date);
+        if (row.role === "PARTICIPANT") {
+            participantByDate[row.date] = (participantByDate[row.date] || 0) + row.count;
+        }
+        if (row.role === "ORGANIZER") {
+            organizerByDate[row.date] = (organizerByDate[row.date] || 0) + row.count;
+        }
+    });
 
-    new Chart(popularCanvas, {
-        type: 'bar',
+    const registrationLabels = Array.from(dateSet).sort();
+    const participantSeries = registrationLabels.map(function (label) {
+        return participantByDate[label] || 0;
+    });
+    const organizerSeries = registrationLabels.map(function (label) {
+        return organizerByDate[label] || 0;
+    });
+
+    const registrationCanvas = document.getElementById("registrationsChart");
+    const registrationCtx = registrationCanvas.getContext("2d");
+    const participantGradient = registrationCtx.createLinearGradient(0, 0, 0, registrationCanvas.height || 220);
+    participantGradient.addColorStop(0, "rgba(255, 107, 53, 0.38)");
+    participantGradient.addColorStop(1, "rgba(255, 107, 53, 0.05)");
+    const organizerGradient = registrationCtx.createLinearGradient(0, 0, 0, registrationCanvas.height || 220);
+    organizerGradient.addColorStop(0, "rgba(56, 178, 172, 0.38)");
+    organizerGradient.addColorStop(1, "rgba(56, 178, 172, 0.05)");
+
+    new Chart(registrationCanvas, {
+        type: "line",
         data: {
-            labels: popularLabels,
+            labels: registrationLabels,
             datasets: [{
-                label: 'Tickets Sold',
-                data: popularData,
-                backgroundColor: popularGradient,
-                borderColor: 'rgba(255, 255, 255, 0.22)',
-                borderWidth: 1,
-                borderRadius: 10
+                label: "Participants",
+                data: participantSeries,
+                borderColor: "rgba(255, 107, 53, 0.95)",
+                backgroundColor: participantGradient,
+                pointBackgroundColor: "rgba(255, 107, 53, 1)",
+                pointBorderColor: "#FFFFFF",
+                pointBorderWidth: 1,
+                tension: 0.28,
+                fill: true
+            }, {
+                label: "Organizers",
+                data: organizerSeries,
+                borderColor: "rgba(56, 178, 172, 0.95)",
+                backgroundColor: organizerGradient,
+                pointBackgroundColor: "rgba(56, 178, 172, 1)",
+                pointBorderColor: "#FFFFFF",
+                pointBorderWidth: 1,
+                tension: 0.28,
+                fill: true
             }]
         },
         options: {
             responsive: true,
             scales: {
                 x: {
-                    ticks: { color: 'rgba(222, 227, 252, 0.82)' },
-                    grid: { color: 'rgba(255, 255, 255, 0.08)' }
+                    ticks: { color: "#4A5568" },
+                    grid: { color: "rgba(148, 163, 184, 0.18)" }
                 },
                 y: {
                     beginAtZero: true,
-                    ticks: { color: 'rgba(222, 227, 252, 0.82)' },
-                    grid: { color: 'rgba(255, 255, 255, 0.08)' }
+                    ticks: { color: "#4A5568" },
+                    grid: { color: "rgba(148, 163, 184, 0.18)" }
                 }
             },
             plugins: {
                 legend: {
-                    labels: { color: 'rgba(236, 239, 255, 0.86)' }
+                    labels: { color: "#334155" }
                 }
             }
         }
     });
 
-    const registrationsCanvas = document.getElementById('registrationsChart');
-    const registrationsCtx = registrationsCanvas.getContext('2d');
-    const registrationsGradient = registrationsCtx.createLinearGradient(0, 0, 0, registrationsCanvas.height || 200);
-    registrationsGradient.addColorStop(0, 'rgba(236, 72, 153, 0.55)');
-    registrationsGradient.addColorStop(1, 'rgba(124, 58, 237, 0)');
-
-    new Chart(registrationsCanvas, {
-        type: 'line',
-        data: {
-            labels: registrationLabels,
-            datasets: [{
-                label: 'Registrations',
-                data: registrationData,
-                borderColor: 'rgba(236, 72, 153, 0.95)',
-                backgroundColor: registrationsGradient,
-                fill: true,
-                tension: 0.25,
-                pointBackgroundColor: 'rgba(37, 99, 235, 0.95)',
-                pointBorderColor: '#FFFFFF',
-                pointBorderWidth: 1.2
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                x: {
-                    ticks: { color: 'rgba(222, 227, 252, 0.82)' },
-                    grid: { color: 'rgba(255, 255, 255, 0.08)' }
-                },
-                y: {
-                    beginAtZero: true,
-                    ticks: { color: 'rgba(222, 227, 252, 0.82)' },
-                    grid: { color: 'rgba(255, 255, 255, 0.08)' }
-                }
-            },
-            plugins: {
-                legend: {
-                    labels: { color: 'rgba(236, 239, 255, 0.86)' }
-                }
-            }
+    document.querySelectorAll(".category-pill[data-category]").forEach(function (badge) {
+        const category = (badge.getAttribute("data-category") || "").toLowerCase();
+        const palette = [
+            ["#FFF1EA", "#FFD8C8", "#C2410C"],
+            ["#E6FFFA", "#B8F0EA", "#0F766E"],
+            ["#FFF7ED", "#FED7AA", "#9A3412"]
+        ];
+        let hash = 0;
+        for (let i = 0; i < category.length; i += 1) {
+            hash = category.charCodeAt(i) + ((hash << 5) - hash);
         }
+        const c = palette[Math.abs(hash) % palette.length];
+        badge.style.background = c[0];
+        badge.style.borderColor = c[1];
+        badge.style.color = c[2];
     });
 </script>
 

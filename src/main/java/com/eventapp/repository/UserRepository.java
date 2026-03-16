@@ -1,6 +1,7 @@
 package com.eventapp.repository;
 
 import com.eventapp.model.User;
+import com.eventapp.model.UserRole;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -53,6 +54,13 @@ public class UserRepository {
 
     public long countAll() {
         return entityManager.createQuery("SELECT COUNT(u) FROM User u", Long.class)
+                .getSingleResult();
+    }
+
+    public long countByRole(UserRole role) {
+        return entityManager.createQuery(
+                        "SELECT COUNT(u) FROM User u WHERE u.role = :role", Long.class)
+                .setParameter("role", role)
                 .getSingleResult();
     }
 

@@ -1,4 +1,4 @@
-﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 <%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
@@ -6,124 +6,293 @@
 <jsp:include page="/WEB-INF/views/layout/header.jsp"/>
 
 <style>
-    .organizer-form-page {
-        --p1: #7C3AED;
-        --p2: #2563EB;
-        --p3: #EC4899;
-    }
-
     .organizer-form-page .form-shell {
-        border-radius: 1.25rem;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        background: linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
-        backdrop-filter: blur(20px);
-        box-shadow: 0 28px 46px rgba(7, 8, 20, 0.4);
-        padding: clamp(1.1rem, 2.6vw, 2rem);
+        padding: clamp(1rem, 3vw, 1.5rem);
     }
 
-    .organizer-form-page .form-title {
-        margin: 0 0 0.95rem;
-        font-family: "Syne", sans-serif;
-        font-size: clamp(1.55rem, 3.4vw, 2.3rem);
-        line-height: 1.08;
-        background: linear-gradient(115deg, var(--p1), var(--p2), var(--p3));
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
+    .form-title {
+        margin: 0 0 0.8rem;
+        font-size: clamp(1.8rem, 3vw, 2.4rem);
     }
 
-    .organizer-form-page .form-label {
-        font-size: 0.77rem;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: rgba(214, 219, 248, 0.77);
-        margin-bottom: 0.34rem;
+    .location-field-wrap {
+        position: relative;
     }
 
-    .organizer-form-page .form-control,
-    .organizer-form-page .form-select {
-        border-radius: 0.9rem;
-        border: 1px solid rgba(255, 255, 255, 0.22);
-        background: rgba(8, 10, 24, 0.68);
-        color: #F4F5FF;
-        min-height: 46px;
-        padding: 0.6rem 0.8rem;
+    .location-loading {
+        position: absolute;
+        right: 0.7rem;
+        top: 2.35rem;
+        color: #FF6B35;
     }
 
-    .organizer-form-page textarea.form-control {
-        min-height: 130px;
-        resize: vertical;
+    .location-suggestions {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: calc(100% + 0.35rem);
+        z-index: 30;
+        border: 1px solid #E2E8F0;
+        border-radius: 12px;
+        background: #FFFFFF;
+        box-shadow: var(--shadow-card);
+        max-height: 260px;
+        overflow: auto;
+        padding: 0.4rem;
     }
 
-    .organizer-form-page .form-control:focus,
-    .organizer-form-page .form-select:focus {
-        border-color: rgba(236, 72, 153, 0.9);
-        box-shadow: 0 0 0 0.18rem rgba(124, 58, 237, 0.25);
-        background: rgba(10, 13, 30, 0.9);
-        color: #FFFFFF;
-    }
-
-    .organizer-form-page .btn-vivid {
-        border: 0;
-        border-radius: 0.9rem;
-        min-height: 48px;
+    .location-item {
         width: 100%;
-        font-weight: 700;
-        color: #FFFFFF;
-        background: linear-gradient(100deg, var(--p1), var(--p2), var(--p3));
-        box-shadow: 0 18px 31px rgba(124, 58, 237, 0.32);
-        transition: transform 0.24s ease, box-shadow 0.24s ease;
+        border: 1px solid transparent;
+        background: #FFFFFF;
+        border-radius: 10px;
+        text-align: left;
+        padding: 0.55rem 0.6rem;
+        margin-bottom: 0.25rem;
     }
 
-    .organizer-form-page .btn-vivid:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 24px 36px rgba(236, 72, 153, 0.34);
+    .location-item:hover {
+        border-color: #FFD3C0;
+        background: #FFF7F3;
+    }
+
+    .location-name {
+        display: block;
+        color: #1A202C;
+        font-weight: 700;
+    }
+
+    .location-country {
+        display: block;
+        color: #64748B;
+        font-size: 0.82rem;
+    }
+
+    .location-map-shell {
+        border: 1px solid #E2E8F0;
+        border-radius: 14px;
+        overflow: hidden;
+        background: #FFFFFF;
+    }
+
+    .location-map {
+        height: 320px;
+        width: 100%;
     }
 </style>
 
-<section class="organizer-form-page">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="form-shell">
-                <h1 class="form-title">Edit Event</h1>
-                <form action="${pageContext.request.contextPath}/organizer/edit-event" method="post" class="row g-3">
-                    <input type="hidden" name="csrfToken" value="${csrfToken}">
-                    <input type="hidden" name="id" value="${event.id}">
-                    <div class="col-md-6">
-                        <label class="form-label" for="eventTitle">Title</label>
-                        <input type="text" id="eventTitle" class="form-control" name="title" value="${fn:escapeXml(event.title)}" required>
+<section class="organizer-form-page dashboard-layout">
+    <aside class="dashboard-sidebar">
+        <h2>Organizer</h2>
+        <a class="sidebar-link" href="${pageContext.request.contextPath}/organizer/dashboard">Dashboard</a>
+        <a class="sidebar-link" href="${pageContext.request.contextPath}/organizer/create-event">Create Event</a>
+        <a class="sidebar-link active" href="${pageContext.request.contextPath}/organizer/edit-event?id=${event.id}">Edit Event</a>
+        <a class="sidebar-link" href="${pageContext.request.contextPath}/organizer/stats">Statistics</a>
+    </aside>
+
+    <div class="dashboard-content">
+        <div class="form-shell">
+            <h1 class="form-title">Edit Event</h1>
+            <form action="${pageContext.request.contextPath}/organizer/edit-event" method="post" class="row g-3">
+                <input type="hidden" name="csrfToken" value="${csrfToken}">
+                <input type="hidden" name="id" value="${event.id}">
+                <div class="col-md-6">
+                    <label class="form-label" for="eventTitle">Title</label>
+                    <input type="text" id="eventTitle" class="form-control" name="title" value="${fn:escapeXml(event.title)}" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" for="eventCategory">Category</label>
+                    <input type="text" id="eventCategory" class="form-control" name="category" value="${fn:escapeXml(event.category)}" required>
+                </div>
+                <div class="col-12">
+                    <label class="form-label" for="eventDescription">Description</label>
+                    <textarea id="eventDescription" class="form-control" name="description" rows="4" required>${fn:escapeXml(event.description)}</textarea>
+                </div>
+                <div class="col-md-6 location-field-wrap">
+                    <label class="form-label" for="eventLocation">Search Location</label>
+                    <input type="text" id="eventLocation" class="form-control" name="location" value="${fn:escapeXml(event.location)}" required autocomplete="off">
+                    <input type="hidden" id="eventLatitude" name="latitude" value="${event.latitude}">
+                    <input type="hidden" id="eventLongitude" name="longitude" value="${event.longitude}">
+                    <div id="locationLoading" class="location-loading d-none" aria-live="polite">
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label" for="eventCategory">Category</label>
-                        <input type="text" id="eventCategory" class="form-control" name="category" value="${fn:escapeXml(event.category)}" required>
+                    <div id="locationSuggestions" class="location-suggestions d-none" role="listbox" aria-label="Location suggestions"></div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" for="eventDate">Event Date</label>
+                    <input type="datetime-local" id="eventDate" class="form-control" name="eventDate" value="${fn:substring(event.eventDate, 0, 16)}" required>
+                </div>
+                <div class="col-12 ${event.latitude == null or event.longitude == null ? 'd-none' : ''}" id="locationMapWrap">
+                    <div class="location-map-shell">
+                        <div id="eventLocationMap" class="location-map" aria-label="Selected event location"></div>
                     </div>
-                    <div class="col-12">
-                        <label class="form-label" for="eventDescription">Description</label>
-                        <textarea id="eventDescription" class="form-control" name="description" rows="4" required>${fn:escapeXml(event.description)}</textarea>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label" for="eventLocation">Location</label>
-                        <input type="text" id="eventLocation" class="form-control" name="location" value="${fn:escapeXml(event.location)}" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label" for="eventDate">Event Date</label>
-                        <input type="datetime-local" id="eventDate" class="form-control" name="eventDate" value="${fn:substring(event.eventDate, 0, 16)}" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label" for="eventTotalTickets">Total Tickets</label>
-                        <input type="number" id="eventTotalTickets" class="form-control" name="totalTickets" value="${event.totalTickets}" required min="1">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label" for="eventPrice">Price</label>
-                        <input type="number" id="eventPrice" step="0.01" class="form-control" name="price" value="${event.price}" required min="0">
-                    </div>
-                    <div class="col-12 d-grid">
-                        <button class="btn-vivid" type="submit">Update Event</button>
-                    </div>
-                </form>
-            </div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" for="eventTotalTickets">Total Tickets</label>
+                    <input type="number" id="eventTotalTickets" class="form-control" name="totalTickets" value="${event.totalTickets}" required min="1">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" for="eventPrice">Price</label>
+                    <input type="number" id="eventPrice" step="0.01" class="form-control" name="price" value="${event.price}" required min="0">
+                </div>
+                <div class="col-12 d-grid">
+                    <button class="btn-vivid" type="submit">Update Event</button>
+                </div>
+            </form>
         </div>
     </div>
 </section>
+
+<script>
+    (function () {
+        const input = document.getElementById("eventLocation");
+        const latitudeInput = document.getElementById("eventLatitude");
+        const longitudeInput = document.getElementById("eventLongitude");
+        const suggestionsBox = document.getElementById("locationSuggestions");
+        const loading = document.getElementById("locationLoading");
+        const mapWrap = document.getElementById("locationMapWrap");
+        const mapElement = document.getElementById("eventLocationMap");
+        if (!input || !latitudeInput || !longitudeInput || !suggestionsBox || !loading || !mapWrap || !mapElement) {
+            return;
+        }
+
+        const apiUrl = "https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=8&q=";
+        let debounceTimer = null;
+        let requestIndex = 0;
+        let selectedLabel = input.value.trim();
+        let map = null;
+        let marker = null;
+
+        function hideSuggestions() {
+            suggestionsBox.classList.add("d-none");
+            suggestionsBox.innerHTML = "";
+        }
+
+        function setLoading(isLoading) {
+            loading.classList.toggle("d-none", !isLoading);
+        }
+
+        function showMap(lat, lng, label) {
+            if (!window.L || !Number.isFinite(lat) || !Number.isFinite(lng)) {
+                return;
+            }
+            mapWrap.classList.remove("d-none");
+            if (!map) {
+                map = L.map(mapElement, { scrollWheelZoom: true }).setView([lat, lng], 13);
+                L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                    attribution: "&copy; OpenStreetMap contributors",
+                    maxZoom: 20
+                }).addTo(map);
+            } else {
+                map.setView([lat, lng], 13);
+            }
+
+            if (!marker) {
+                marker = L.marker([lat, lng]).addTo(map);
+            } else {
+                marker.setLatLng([lat, lng]);
+            }
+            marker.bindPopup(label || "Selected location").openPopup();
+            window.setTimeout(function () {
+                map.invalidateSize();
+            }, 80);
+        }
+
+        function selectLocation(item) {
+            const lat = Number.parseFloat(item.lat);
+            const lng = Number.parseFloat(item.lon);
+            const primaryName = (item.name && item.name.trim()) ? item.name.trim() : (item.display_name || "").split(",")[0].trim();
+            input.value = primaryName;
+            latitudeInput.value = Number.isFinite(lat) ? String(lat) : "";
+            longitudeInput.value = Number.isFinite(lng) ? String(lng) : "";
+            selectedLabel = input.value;
+            hideSuggestions();
+            showMap(lat, lng, primaryName);
+        }
+
+        function renderSuggestions(items) {
+            if (!items.length) {
+                hideSuggestions();
+                return;
+            }
+            suggestionsBox.innerHTML = "";
+            items.forEach(function (item) {
+                const option = document.createElement("button");
+                option.type = "button";
+                option.className = "location-item";
+                const placeName = (item.name && item.name.trim()) ? item.name.trim() : (item.display_name || "").split(",")[0].trim();
+                const countryName = (item.address && item.address.country) ? item.address.country : ((item.display_name || "").split(",").slice(-1)[0] || "").trim();
+                option.innerHTML = "<span class='location-name'></span><span class='location-country'></span>";
+                option.querySelector(".location-name").textContent = placeName || "Unknown place";
+                option.querySelector(".location-country").textContent = countryName || "Unknown country";
+                option.addEventListener("click", function () {
+                    selectLocation(item);
+                });
+                suggestionsBox.appendChild(option);
+            });
+            suggestionsBox.classList.remove("d-none");
+        }
+
+        input.addEventListener("input", function () {
+            const query = input.value.trim();
+            if (query !== selectedLabel) {
+                latitudeInput.value = "";
+                longitudeInput.value = "";
+                mapWrap.classList.add("d-none");
+            }
+            if (debounceTimer) {
+                window.clearTimeout(debounceTimer);
+            }
+            if (query.length < 2) {
+                hideSuggestions();
+                setLoading(false);
+                return;
+            }
+
+            debounceTimer = window.setTimeout(function () {
+                const currentRequest = ++requestIndex;
+                setLoading(true);
+                fetch(apiUrl + encodeURIComponent(query), {
+                    headers: {
+                        "Accept": "application/json",
+                        "Accept-Language": "en"
+                    }
+                })
+                    .then(function (response) {
+                        if (!response.ok) {
+                            throw new Error("Unable to load location suggestions.");
+                        }
+                        return response.json();
+                    })
+                    .then(function (data) {
+                        if (currentRequest !== requestIndex) {
+                            return;
+                        }
+                        renderSuggestions(Array.isArray(data) ? data : []);
+                    })
+                    .catch(function () {
+                        hideSuggestions();
+                    })
+                    .finally(function () {
+                        if (currentRequest === requestIndex) {
+                            setLoading(false);
+                        }
+                    });
+            }, 300);
+        });
+
+        document.addEventListener("click", function (event) {
+            if (!event.target.closest(".location-field-wrap")) {
+                hideSuggestions();
+            }
+        });
+
+        const initialLat = Number.parseFloat(latitudeInput.value);
+        const initialLng = Number.parseFloat(longitudeInput.value);
+        if (Number.isFinite(initialLat) && Number.isFinite(initialLng)) {
+            showMap(initialLat, initialLng, input.value.trim());
+        }
+    })();
+</script>
 
 <jsp:include page="/WEB-INF/views/layout/footer.jsp"/>

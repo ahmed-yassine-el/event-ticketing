@@ -1,4 +1,4 @@
-﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 <%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
@@ -6,180 +6,258 @@
 <jsp:include page="/WEB-INF/views/layout/header.jsp"/>
 
 <style>
-    .admin-events {
-        --p1: #7C3AED;
-        --p2: #2563EB;
-        --p3: #EC4899;
+    .admin-events .card {
+        border-radius: 18px;
     }
 
-    .admin-events .glass-card {
-        border-radius: 1.2rem;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        background: linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
-        backdrop-filter: blur(20px);
-        box-shadow: 0 26px 44px rgba(7, 8, 20, 0.4);
-    }
-
-    .admin-events .glass-card .card-body {
-        padding: 1.1rem;
-    }
-
-    .admin-events .section-title {
-        margin: 0 0 0.95rem;
-        font-family: "Syne", sans-serif;
-        font-size: clamp(1.3rem, 3vw, 1.8rem);
-        line-height: 1.1;
-        color: #F7F8FF;
-    }
-
-    .admin-events .table-wrap {
-        border-radius: 1rem;
-        border: 1px solid rgba(255, 255, 255, 0.16);
-        overflow: hidden;
-        background: rgba(8, 10, 24, 0.58);
-    }
-
-    .admin-events .events-table {
+    .muted-note {
         margin: 0;
-        --bs-table-bg: transparent;
-        color: #EDF0FF;
+        color: #64748B;
     }
 
-    .admin-events .events-table thead th {
-        background: rgba(255, 255, 255, 0.05);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.16);
-        color: rgba(215, 220, 248, 0.78);
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
+    .filter-shell {
+        padding: 0.85rem;
+        border: 1px solid #E2E8F0;
+        border-radius: 14px;
+        background: #FFFFFF;
+    }
+
+    .events-table th,
+    .events-table td {
         white-space: nowrap;
     }
 
-    .admin-events .events-table td,
-    .admin-events .events-table th {
-        border-color: rgba(255, 255, 255, 0.08);
-        padding: 0.78rem 0.68rem;
-        vertical-align: middle;
+    .events-table td:first-child,
+    .events-table th:first-child {
+        white-space: normal;
+        min-width: 220px;
     }
 
-    .admin-events .status-pill {
-        display: inline-flex;
-        align-items: center;
-        border-radius: 999px;
-        border: 1px solid rgba(251, 191, 36, 0.62);
-        background: rgba(245, 158, 11, 0.24);
-        color: #FFF1CC;
-        font-size: 0.72rem;
-        font-weight: 700;
-        letter-spacing: 0.04em;
-        padding: 0.24rem 0.6rem;
-    }
-
-    .admin-events .actions {
-        display: flex;
-        gap: 0.45rem;
-        flex-wrap: wrap;
-    }
-
-    .admin-events .actions form {
+    .event-title {
         margin: 0;
-    }
-
-    .admin-events .btn-approve,
-    .admin-events .btn-reject {
-        border: 0;
-        border-radius: 0.78rem;
-        min-height: 34px;
-        padding: 0.38rem 0.7rem;
-        font-size: 0.79rem;
         font-weight: 700;
-        transition: transform 0.2s ease, background-color 0.2s ease;
+        color: #2D3748;
     }
 
-    .admin-events .btn-approve {
-        color: #E0FFE8;
-        background: rgba(34, 197, 94, 0.24);
-        border: 1px solid rgba(34, 197, 94, 0.6);
+    .empty-state {
+        text-align: center;
+        color: #64748B;
+        padding: 1rem;
     }
 
-    .admin-events .btn-approve:hover {
-        color: #FFFFFF;
-        background: rgba(34, 197, 94, 0.34);
-        transform: translateY(-1px);
-    }
-
-    .admin-events .btn-reject {
-        color: #FFE2E8;
-        background: rgba(239, 68, 68, 0.24);
-        border: 1px solid rgba(248, 113, 113, 0.66);
-    }
-
-    .admin-events .btn-reject:hover {
-        color: #FFFFFF;
-        background: rgba(239, 68, 68, 0.34);
-        transform: translateY(-1px);
-    }
-
-    @media (max-width: 991.98px) {
-        .admin-events .table-wrap {
-            overflow-x: auto;
-        }
-
-        .admin-events .events-table {
-            min-width: 980px;
-        }
+    .delete-modal .modal-body {
+        color: #4A5568;
     }
 </style>
 
-<section class="admin-events">
-    <div class="glass-card card">
-        <div class="card-body">
-            <h1 class="section-title">Approve or Reject Events</h1>
-            <div class="table-wrap table-responsive">
-                <table class="table table-bordered align-middle events-table">
-                    <thead>
-                    <tr>
-                        <th>Title</th>
-                        <th>Organizer</th>
-                        <th>Date</th>
-                        <th>Location</th>
-                        <th>Price</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <c:forEach items="${pendingEvents}" var="event">
+<section class="admin-events dashboard-layout">
+    <aside class="dashboard-sidebar">
+        <h2>Admin</h2>
+        <a class="sidebar-link" href="${pageContext.request.contextPath}/admin/dashboard">Dashboard</a>
+        <a class="sidebar-link active" href="${pageContext.request.contextPath}/admin/events">Events</a>
+        <a class="sidebar-link" href="${pageContext.request.contextPath}/admin/users">Users</a>
+        <a class="sidebar-link" href="${pageContext.request.contextPath}/admin/stats">Statistics</a>
+    </aside>
+
+    <div class="dashboard-content">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+                    <div>
+                        <h1 class="section-title">Admin Events Management</h1>
+                        <p class="muted-note">Showing <c:out value="${totalEvents}"/> events</p>
+                    </div>
+                    <a href="${pageContext.request.contextPath}/admin/dashboard" class="btn-soft">Back To Dashboard</a>
+                </div>
+
+                <form method="get" action="${pageContext.request.contextPath}/admin/events" class="filter-shell mb-3">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-4">
+                            <label class="form-label" for="statusFilter">Filter By Status</label>
+                            <select id="statusFilter" name="status" class="form-select">
+                                <option value="" ${empty statusFilter ? 'selected' : ''}>All Statuses</option>
+                                <option value="PENDING" ${statusFilter == 'PENDING' ? 'selected' : ''}>PENDING</option>
+                                <option value="APPROVED" ${statusFilter == 'APPROVED' ? 'selected' : ''}>APPROVED</option>
+                                <option value="CANCELLED" ${statusFilter == 'CANCELLED' ? 'selected' : ''}>CANCELLED</option>
+                            </select>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label" for="tableSearch">Search By Title / Organizer</label>
+                            <input id="tableSearch" type="text" class="form-control" placeholder="Type to filter visible rows...">
+                        </div>
+                        <div class="col-md-3 d-grid">
+                            <button type="submit" class="btn-vivid">Apply Filter</button>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="table-wrap table-responsive">
+                    <table class="table align-middle events-table" id="adminEventsTable">
+                        <thead>
                         <tr>
-                            <td><c:out value="${event.title}"/></td>
-                            <td><c:out value="${event.organizer.name}"/></td>
-                            <td><c:out value="${event.eventDate}"/></td>
-                            <td><c:out value="${event.location}"/></td>
-                            <td><fmt:formatNumber value="${event.price}" type="currency"/></td>
-                            <td><span class="status-pill"><c:out value="${event.status}"/></span></td>
-                            <td>
-                                <div class="actions">
-                                    <form method="post" action="${pageContext.request.contextPath}/admin/approve-event">
-                                        <input type="hidden" name="csrfToken" value="${csrfToken}">
-                                        <input type="hidden" name="id" value="${event.id}">
-                                        <input type="hidden" name="action" value="approve">
-                                        <button class="btn-approve" type="submit">Approve</button>
-                                    </form>
-                                    <form method="post" action="${pageContext.request.contextPath}/admin/approve-event">
-                                        <input type="hidden" name="csrfToken" value="${csrfToken}">
-                                        <input type="hidden" name="id" value="${event.id}">
-                                        <input type="hidden" name="action" value="reject">
-                                        <button class="btn-reject" type="submit">Reject</button>
-                                    </form>
-                                </div>
-                            </td>
+                            <th>Event Title</th>
+                            <th>Organizer</th>
+                            <th>Category</th>
+                            <th>Date</th>
+                            <th>Price</th>
+                            <th>Tickets</th>
+                            <th>Status</th>
+                            <th>Actions</th>
                         </tr>
-                    </c:forEach>
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                        <c:choose>
+                            <c:when test="${not empty events}">
+                                <c:forEach items="${events}" var="event">
+                                    <tr data-search="${fn:toLowerCase(event.title)} ${fn:toLowerCase(event.organizer.name)}">
+                                        <td><p class="event-title"><c:out value="${event.title}"/></p></td>
+                                        <td><c:out value="${event.organizer.name}"/></td>
+                                        <td><span class="category-pill" data-category="${fn:escapeXml(event.category)}"><c:out value="${event.category}"/></span></td>
+                                        <td><c:out value="${fn:replace(fn:substring(event.eventDate, 0, 16), 'T', ' ')}"/></td>
+                                        <td><fmt:formatNumber value="${event.price}" type="currency"/></td>
+                                        <td><strong><c:out value="${event.availableTickets}"/></strong> / <c:out value="${event.totalTickets}"/></td>
+                                        <td>
+                                            <span class="status-pill ${fn:toLowerCase(event.status.name())}"><c:out value="${event.status}"/></span>
+                                        </td>
+                                        <td>
+                                            <div class="actions">
+                                                <c:if test="${event.status.name() == 'PENDING'}">
+                                                    <form method="post" action="${pageContext.request.contextPath}/admin/approve-event">
+                                                        <input type="hidden" name="csrfToken" value="${csrfToken}">
+                                                        <input type="hidden" name="id" value="${event.id}">
+                                                        <input type="hidden" name="action" value="approve">
+                                                        <input type="hidden" name="status" value="${statusFilter}">
+                                                        <input type="hidden" name="page" value="${currentPage}">
+                                                        <button class="btn-approve" type="submit">Approve</button>
+                                                    </form>
+                                                    <form method="post" action="${pageContext.request.contextPath}/admin/approve-event">
+                                                        <input type="hidden" name="csrfToken" value="${csrfToken}">
+                                                        <input type="hidden" name="id" value="${event.id}">
+                                                        <input type="hidden" name="action" value="reject">
+                                                        <input type="hidden" name="status" value="${statusFilter}">
+                                                        <input type="hidden" name="page" value="${currentPage}">
+                                                        <button class="btn-reject" type="submit">Reject</button>
+                                                    </form>
+                                                </c:if>
+                                                <button type="button"
+                                                        class="btn-delete"
+                                                        data-event-id="${event.id}"
+                                                        data-event-title="${fn:escapeXml(event.title)}">Delete</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </c:forEach>
+                            </c:when>
+                            <c:otherwise>
+                                <tr>
+                                    <td colspan="8" class="empty-state">No events found for the selected filter.</td>
+                                </tr>
+                            </c:otherwise>
+                        </c:choose>
+                        </tbody>
+                    </table>
+                </div>
+
+                <c:if test="${totalPages > 1}">
+                    <nav class="mt-3" aria-label="Events pagination">
+                        <ul class="pagination justify-content-center flex-wrap">
+                            <li class="page-item ${currentPage <= 1 ? 'disabled' : ''}">
+                                <a class="page-link" href="${pageContext.request.contextPath}/admin/events?page=${currentPage - 1}<c:if test='${not empty statusFilter}'>&status=${statusFilter}</c:if>">Previous</a>
+                            </li>
+                            <c:forEach begin="1" end="${totalPages}" var="pageNumber">
+                                <li class="page-item ${pageNumber == currentPage ? 'active' : ''}">
+                                    <a class="page-link" href="${pageContext.request.contextPath}/admin/events?page=${pageNumber}<c:if test='${not empty statusFilter}'>&status=${statusFilter}</c:if>"><c:out value="${pageNumber}"/></a>
+                                </li>
+                            </c:forEach>
+                            <li class="page-item ${currentPage >= totalPages ? 'disabled' : ''}">
+                                <a class="page-link" href="${pageContext.request.contextPath}/admin/events?page=${currentPage + 1}<c:if test='${not empty statusFilter}'>&status=${statusFilter}</c:if>">Next</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </c:if>
             </div>
         </div>
     </div>
 </section>
+
+<form id="deleteEventForm" method="post" action="${pageContext.request.contextPath}/admin/delete-event" class="d-none">
+    <input type="hidden" name="csrfToken" value="${csrfToken}">
+    <input type="hidden" name="id" id="deleteEventId">
+    <input type="hidden" name="status" value="${statusFilter}">
+    <input type="hidden" name="page" value="${currentPage}">
+</form>
+
+<div class="modal fade delete-modal" id="deleteEventModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Event</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Delete <strong id="deleteEventTitle"></strong>? This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn-confirm-delete" id="confirmDeleteEventBtn">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll(".category-pill[data-category]").forEach(function (badge) {
+        const category = (badge.getAttribute("data-category") || "").toLowerCase();
+        const palette = [
+            ["#FFF1EA", "#FFD8C8", "#C2410C"],
+            ["#E6FFFA", "#B8F0EA", "#0F766E"],
+            ["#FFF7ED", "#FED7AA", "#9A3412"]
+        ];
+        let hash = 0;
+        for (let i = 0; i < category.length; i += 1) {
+            hash = category.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        const c = palette[Math.abs(hash) % palette.length];
+        badge.style.background = c[0];
+        badge.style.borderColor = c[1];
+        badge.style.color = c[2];
+    });
+
+    const searchInput = document.getElementById("tableSearch");
+    const tableRows = Array.from(document.querySelectorAll("#adminEventsTable tbody tr[data-search]"));
+    if (searchInput && tableRows.length) {
+        searchInput.addEventListener("input", function () {
+            const query = searchInput.value.trim().toLowerCase();
+            tableRows.forEach(function (row) {
+                const text = row.getAttribute("data-search") || "";
+                row.style.display = (!query || text.indexOf(query) !== -1) ? "" : "none";
+            });
+        });
+    }
+
+    const deleteForm = document.getElementById("deleteEventForm");
+    const deleteIdInput = document.getElementById("deleteEventId");
+    const deleteTitle = document.getElementById("deleteEventTitle");
+    const confirmDeleteBtn = document.getElementById("confirmDeleteEventBtn");
+    const deleteModalEl = document.getElementById("deleteEventModal");
+    const deleteModal = (deleteModalEl && window.bootstrap) ? new bootstrap.Modal(deleteModalEl) : null;
+
+    document.querySelectorAll(".btn-delete[data-event-id]").forEach(function (button) {
+        button.addEventListener("click", function () {
+            if (!deleteModal || !deleteForm || !deleteIdInput || !deleteTitle) {
+                return;
+            }
+            deleteIdInput.value = button.getAttribute("data-event-id");
+            deleteTitle.textContent = button.getAttribute("data-event-title") || "this event";
+            deleteModal.show();
+        });
+    });
+
+    if (confirmDeleteBtn && deleteForm) {
+        confirmDeleteBtn.addEventListener("click", function () {
+            deleteForm.submit();
+        });
+    }
+</script>
 
 <jsp:include page="/WEB-INF/views/layout/footer.jsp"/>

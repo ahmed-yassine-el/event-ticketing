@@ -8,6 +8,8 @@ public class EventDTO {
     private String description;
     private String category;
     private String location;
+    private Double latitude;
+    private Double longitude;
     private LocalDateTime eventDate;
     private Integer totalTickets;
     private BigDecimal price;
@@ -42,6 +44,22 @@ public class EventDTO {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
     }
 
     public LocalDateTime getEventDate() {

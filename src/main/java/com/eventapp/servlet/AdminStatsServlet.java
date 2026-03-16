@@ -26,8 +26,11 @@ public class AdminStatsServlet extends BaseServlet {
         }
 
         request.setAttribute("summary", statisticsService.getSummary());
-        request.setAttribute("popularEvents", statisticsService.getMostPopularEvents(10));
+        request.setAttribute("popularEvents", statisticsService.getPopularEvents(10));
         request.setAttribute("registrationStats", statisticsService.getUserRegistrationStats());
+        request.setAttribute("totalParticipants", statisticsService.countUsersByRole(UserRole.PARTICIPANT));
+        request.setAttribute("totalOrganizers", statisticsService.countUsersByRole(UserRole.ORGANIZER));
+        request.setAttribute("totalAdmins", statisticsService.countUsersByRole(UserRole.ADMIN));
         forward(request, response, "admin/stats.jsp");
     }
 }

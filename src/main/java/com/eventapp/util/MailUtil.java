@@ -20,8 +20,8 @@ public final class MailUtil {
 
     private static final String SMTP_HOST = "smtp.gmail.com";
     private static final String SMTP_PORT = "587";
-    private static final String SMTP_USERNAME = "elghazzaliyassine122@gmail.com";
-    private static final String SMTP_PASSWORD = "nmbt dsnp jgnz vdby";
+    private static final String SMTP_USERNAME = "Danerichaimae@gmail.com";
+    private static final String SMTP_PASSWORD = "sazm mmqn ccwh qxqo";
     private static final String SMTP_AUTH = "true";
     private static final String SMTP_STARTTLS = "true";
 

@@ -65,6 +65,36 @@ public class EventRepository {
                 .getResultList();
     }
 
+    public List<Event> findForAdmin(EventStatus status, int page, int size) {
+        StringBuilder jpql = new StringBuilder(
+                "SELECT DISTINCT e FROM Event e LEFT JOIN FETCH e.organizer");
+        if (status != null) {
+            jpql.append(" WHERE e.status = :status");
+        }
+        jpql.append(" ORDER BY e.createdAt DESC");
+
+        var query = entityManager.createQuery(jpql.toString(), Event.class)
+                .setFirstResult(Math.max(0, page) * Math.max(1, size))
+                .setMaxResults(Math.max(1, size));
+        if (status != null) {
+            query.setParameter("status", status);
+        }
+        return query.getResultList();
+    }
+
+    public long countForAdmin(EventStatus status) {
+        StringBuilder jpql = new StringBuilder("SELECT COUNT(e) FROM Event e");
+        if (status != null) {
+            jpql.append(" WHERE e.status = :status");
+        }
+
+        var query = entityManager.createQuery(jpql.toString(), Long.class);
+        if (status != null) {
+            query.setParameter("status", status);
+        }
+        return query.getSingleResult();
+    }
+
     public List<Event> search(String category, String location, LocalDateTime date) {
         StringBuilder jpql = new StringBuilder("SELECT e FROM Event e WHERE e.status = :status");
 
